@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Sistema de Stock</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+
+      <nav class="navbar">
+    <a href="{% url 'home' %}" class="navbar-brand">
+        <i class="bi bi-box-seam"></i> Sistema de StockArce
+    </a>
+
+    <input type="checkbox" id="navbar-toggle">
+
+    <label for="navbar-toggle" class="navbar-toggler">
+        <span class="navbar-toggler-icon"></span>
+    </label>
+
+    <ul class="navbar-nav">
+        <li><a href="{% url 'home' %}" class="nav-link active">Inicio</a></li>
+        <li><a href="{% url 'lista_productos' %}" class="nav-link">Productos</a></li>
+        
+        <li><a href="{% url 'venta' %}" class="nav-link">Registro de Venta</a></li> 
+        <li><a href="{% url 'consultar_ventas' %}" class="nav-link">Historial de Venta</a></li>
+        
+        <li><a href="{% url 'lista_clientes' %}" class="nav-link">Clientes</a></li>
+        <li><a href="{% url 'crear_cliente' %}" class="nav-link">Crear Cliente</a></li> 
+
+        <li><a href="{% url 'panel_alertas' %}" class="nav-link">Alertas</a></li>
+    </ul>
+</nav>
+
+    <div class="container">
+        <div class="text-center mb-4">
+            <h1>🏠 Panel Principal</h1>
+            <p class="text-muted">Gestione su inventario de forma eficiente</p>
+        </div>
+
+        {% if con_alerta %}
+        <div class="alert alert-danger mb-4">
+            <div>
+                <strong>🚨 ¡ALERTA URGENTE!</strong>
+                <span class="ms-2">Hay <strong>{{ productos_bajo_stock }}</strong> producto(s) con stock BAJO.</span>
+            </div>
+            <a href="{% url 'panel_alertas' %}" class="btn btn-danger btn-sm">
+                Ver Panel de Avisos
+            </a>
+        </div>
+        {% endif %}
+
+        <div class="home-grid">
+            {% if con_alerta %}
+            <a href="{% url 'panel_alertas' %}" class="home-card alert-card">
+                <span class="emoji">⚠️</span>
+                <span class="home-card-title">Alertas de Stock</span>
+                <span class="text-danger fw-bold">({{ productos_bajo_stock }})</span>
+            </a>
+            {% else %}
+            <a href="{% url 'panel_alertas' %}" class="home-card">
+                <span class="emoji">✅</span>
+                <span class="home-card-title">Estado del Stock</span>
+                <span class="text-success fw-bold">Normal</span>
+            </a>
+            {% endif %}
+
+            <a href="{% url 'lista_productos' %}" class="home-card">
+                <span class="emoji">📦</span>
+                <span class="home-card-title">Lista de Productos</span>
+            </a>
+
+            <a href="{% url 'crear_tipo' %}" class="home-card">
+                <span class="emoji">🏷️</span>
+                <span class="home-card-title">Crear Tipo</span>
+            </a>
+
+            <a href="{% url 'crear_producto' %}" class="home-card">
+                <span class="emoji">🛒</span>
+                <span class="home-card-title">Crear Producto</span>
+            </a>
+
+            <a href="{% url 'lista_clientes' %}" class="home-card">
+                <span class="emoji">👥</span>
+                <span class="home-card-title">Gestionar Clientes</span>
+            </a>
+
+            <a href="{% url 'venta' %}" class="home-card">
+                <span class="emoji">💸</span>
+                <span class="home-card-title">Registrar Venta</span>
+            </a>
+
+            <a href="{% url 'consultar_ventas' %}" class="home-card">
+                <span class="emoji">📊</span>
+                <span class="home-card-title">Historial de Ventas</span>
+            </a>
+        </div>
+    </div>
+
+</body>
+
+</html>

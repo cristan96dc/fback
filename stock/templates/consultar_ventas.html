@@ -1,0 +1,237 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historial de Ventas</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body class="bg-light">
+
+<nav class="navbar">
+    <a href="{% url 'home' %}" class="navbar-brand">
+        <i class="bi bi-box-seam"></i> Sistema de StockArce
+    </a>
+
+    <input type="checkbox" id="navbar-toggle">
+
+    <label for="navbar-toggle" class="navbar-toggler">
+        <span class="navbar-toggler-icon"></span>
+    </label>
+
+    <ul class="navbar-nav">
+        <li><a href="{% url 'home' %}" class="nav-link">Inicio</a></li> 
+        <li><a href="{% url 'lista_productos' %}" class="nav-link">Productos</a></li>
+        
+        <li><a href="{% url 'venta' %}" class="nav-link">Registro de Venta</a></li> 
+        <li><a href="{% url 'consultar_ventas' %}" class="nav-link active">Historial de Venta</a></li>
+        
+        <li><a href="{% url 'lista_clientes' %}" class="nav-link">Clientes</a></li>
+        <li><a href="{% url 'crear_cliente' %}" class="nav-link">Crear Cliente</a></li> 
+
+        <li><a href="{% url 'panel_alertas' %}" class="nav-link">Alertas</a></li>
+    </ul>
+</nav>
+<div class="container mt-5">
+    
+    <div class="lista-header d-flex justify-content-between align-items-center mb-3">
+        <h1>📊 Historial de Ventas</h1>
+        
+        <div class="dropdown">
+            <button class="btn btn-success dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-download"></i> Exportar
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                    <a class="dropdown-item" href="#" onclick="exportarExcel()">
+                        <i class="bi bi-file-earmark-excel"></i> Exportar a **Excel (.xlsx)**
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="#" onclick="exportarCSV()">
+                        <i class="bi bi-file-earmark-spreadsheet"></i> Exportar a **CSV/ODF**
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item" href="#" onclick="exportarPDF()">
+                        <i class="bi bi-file-earmark-pdf"></i> Exportar a **PDF**
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="card p-4 mb-4">
+        <form method="get">
+            <div class="row">
+                <div class="col-md-3">
+                    <div class="form-group mb-2">
+                        <label>Desde:</label>
+                        <input type="date" name="desde" class="form-control" value="{{ fecha_desde }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group mb-2">
+                        <label>Hasta:</label>
+                        <input type="date" name="hasta" class="form-control" value="{{ fecha_hasta }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group mb-2">
+                        <label>Cliente:</label>
+                        <select name="cliente" class="form-control">
+                            <option value="">Todos</option>
+                            {% for c in clientes %}
+                                <option value="{{ c.id }}" {% if c.id|stringformat:"s" == cliente_id %}selected{% endif %}>
+                                    {{ c.nombre_completo }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group mb-2">
+                        <label>Producto:</label>
+                        <select name="producto" class="form-control">
+                            <option value="">Todos</option>
+                            {% for p in productos %}
+                            <option value="{{ p.id }}" {% if p.id|stringformat:"s" == producto_id %}selected{% endif %}>
+                                {{ p.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions mt-3">
+                <button type="submit" class="btn btn-primary w-100 mb-2">
+                    <i class="bi bi-funnel"></i> Aplicar Filtros
+                </button>
+                
+                <a href="{% url 'consultar_ventas' %}" class="btn btn-secondary w-100">
+                    <i class="bi bi-x-circle"></i> Borrar Filtros
+                </a>
+            </div>
+
+        </form>
+    </div>
+    
+    <div class="card p-4 mb-4">
+        <h2>Total Recaudado: ${{ total_recaudado|floatformat:2 }}</h2>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-bordered" id="tablaVentas">
+            <thead class="table-dark">
+                <tr>
+                    <th>Fecha</th>
+                    <th>Cliente</th>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Valor Total</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for v in ventas %}
+                <tr>
+                    <td>{{ v.fecha|date:"Y-m-d H:i" }}</td>
+                    <td>{{ v.cliente.nombre_completo|default:"Sin Cliente" }}</td> 
+                    <td>{{ v.producto.nombre }}</td>
+                    <td>{{ v.cantidad }}</td>
+                    <td>${{ v.valor_total|floatformat:2 }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center bg-warning-subtle">
+                        No hay ventas para mostrar. ¡Aplica un filtro para buscar!
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+    const { jsPDF } = window.jspdf;
+    const tabla = document.getElementById('tablaVentas');
+
+    // ----------------------
+    // 1. EXPORTAR A EXCEL (.xlsx) y CSV
+    // ----------------------
+    function exportarExcel() {
+        const wb = XLSX.utils.table_to_book(tabla, { sheet: "Ventas" });
+        XLSX.writeFile(wb, 'ventas_historico.xlsx');
+    }
+
+    function exportarCSV() {
+        // Usa la misma lógica de XLSX para obtener el CSV
+        const wb = XLSX.utils.table_to_book(tabla, { sheet: "Ventas" });
+        XLSX.writeFile(wb, 'ventas_historico.csv');
+    }
+
+    // ----------------------
+    // 2. EXPORTAR A PDF
+    // ----------------------
+    function exportarPDF() {
+        // Obtenemos el título del h1 para usarlo como cabecera en el PDF
+        const titulo = document.querySelector('h1').innerText;
+        
+        // Inicializar jsPDF (Tamaño y orientación)
+        const doc = new jsPDF('p', 'pt', 'a4'); 
+        const margin = 20;
+        
+        // Añadir título y margen
+        doc.text(titulo, margin, margin); 
+
+        // Opciones de configuración para html2canvas
+        const options = {
+            scale: 0.8, // Escala para asegurar que entre bien en la página
+            useCORS: true,
+            scrollY: 0, // Asegura que empiece a capturar desde arriba
+        };
+
+        html2canvas(tabla, options).then(canvas => {
+            const imgData = canvas.toDataURL('image/jpeg', 0.9);
+            const imgWidth = doc.internal.pageSize.width - 2 * margin; 
+            const imgHeight = canvas.height * imgWidth / canvas.width;
+            let position = margin + 10;
+            
+            // Añadir imagen al PDF. Si es muy larga, la partimos
+            let heightLeft = imgHeight;
+            let pageHeight = doc.internal.pageSize.height;
+            
+            doc.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+
+            while (heightLeft >= 0) {
+                position = heightLeft - imgHeight;
+                doc.addPage();
+                doc.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+            }
+            
+            doc.save('ventas_historico.pdf');
+        }).catch(err => {
+            console.error("Error al generar el canvas para PDF:", err);
+            alert("Error al generar el PDF. Asegúrate que la tabla esté visible.");
+        });
+    }
+</script>
+</body>
+
+</html>
