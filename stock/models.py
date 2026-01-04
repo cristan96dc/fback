@@ -87,3 +87,76 @@ class Cliente(models.Model):
         if self.nombre_local:
             return f"{self.nombre_completo} - {self.nombre_local}"
         return self.nombre_completo
+
+
+
+class Chofer(models.Model):
+    """Modelo para gestionar choferes/conductores"""
+    nombre_completo = models.CharField(max_length=200, verbose_name="Nombre Completo")
+    telefono = models.CharField(max_length=20)
+    vehiculo = models.CharField(max_length=100, verbose_name="Vehículo/Patente")
+    activo = models.BooleanField(default=True, verbose_name="Activo")
+    notas = models.TextField(blank=True, null=True, verbose_name="Notas/Descripción")
+    fecha_registro = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = "Chofer"
+        verbose_name_plural = "Choferes"
+        ordering = ['nombre_completo']
+    
+    def __str__(self):
+        return f"{self.nombre_completo} - {self.vehiculo}"
+
+
+class Envio(models.Model):
+    """Modelo para gestionar envíos/entregas"""
+    
+    ESTADO_CHOICES = [
+        ('pendiente', 'Pendiente'),
+        ('en_camino', 'En Camino'),
+        ('entregado', 'Entregado'),
+        ('cancelado', 'Cancelado'),
+    ]
+    
+    # Relaciones
+    cliente = models.ForeignKey(Cliente, on_delete=models.CASCADE, verbose_name="Cliente")
+    chofer = models.ForeignKey(Chofer, on_delete=models.SET_NULL, null=True, verbose_name="Chofer Asignado")
+    
+    # Información del envío
+    fecha_envio = models.DateField(verbose_name="Fecha de Envío")
+    hora_estimada = models.TimeField(verbose_name="Hora Estimada de Entrega")
+    descripcion = models.TextField(verbose_name="Descripción del Envío")
+    
+    # Estado y seguimiento
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
+    hora_real_entrega = models.DateTimeField(blank=True, null=True, verbose_name="Hora Real de Entrega")
+    
+    # Información adicional
+    direccion_entrega = models.TextField(verbose_name="Dirección de Entrega")
+    notas = models.TextField(blank=True, null=True, verbose_name="Notas Adicionales")
+    
+    # Timestamps
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_modificacion = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Envío"
+        verbose_name_plural = "Envíos"
+        ordering = ['-fecha_envio', 'hora_estimada']
+    
+    def __str__(self):
+        return f"Envío {self.id} - {self.cliente.nombre_completo} ({self.fecha_envio})"
+
+
+class DetalleEnvio(models.Model):
+    """Modelo para los productos incluidos en cada envío"""
+    envio = models.ForeignKey(Envio, on_delete=models.CASCADE, related_name='detalles')
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
+    cantidad = models.PositiveIntegerField(verbose_name="Cantidad")
+    
+    class Meta:
+        verbose_name = "Detalle de Envío"
+        verbose_name_plural = "Detalles de Envíos"
+    
+    def __str__(self):
+        return f"{self.cantidad}x {self.producto.nombre}"

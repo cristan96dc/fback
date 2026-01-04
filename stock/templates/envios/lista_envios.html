@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Envíos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 30px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        h1 {
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .filters {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .filters form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-group label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        input, select {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        thead {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .estado-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        
+        .estado-pendiente {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .estado-en_camino {
+            background: #cfe2ff;
+            color: #084298;
+        }
+        
+        .estado-entregado {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+        
+        .estado-cancelado {
+            background: #f8d7da;
+            color: #842029;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .actions .btn {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+        
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state h2 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .empty-state p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar" style="background: linear-gradient(135deg, #ffffff 0%);">
+    <a href="{% url 'home' %}" class="navbar-brand"><i class="bi bi-truck"></i> ENVÍOS</a>
+    <ul class="navbar-nav">
+        <li><a href="{% url 'lista_envios' %}" class="nav-link">Ver Envíos</a></li>
+        <li><a href="{% url 'crear_envio' %}" class="nav-link">Nuevo Envío</a></li>
+        <li><a href="{% url 'programa_dia' %}" class="nav-link">Hoja de Ruta</a></li>
+        <li><a href="{% url 'lista_choferes' %}" class="nav-link">Choferes</a></li>
+        <li><a href="{% url 'home' %}" class="nav-link" style="opacity: 0.7;">← Volver</a></li>
+    </ul>
+</nav>
+    <div class="container">
+        <div class="header">
+            <h1>📦 Gestión de Envíos</h1>
+            <div class="header-actions">
+                <a href="{% url 'crear_envio' %}" class="btn btn-primary">➕ Nuevo Envío</a>
+                <a href="{% url 'programa_dia' %}" class="btn btn-success">📅 Programa del Día</a>
+                <a href="{% url 'home' %}" class="btn btn-secondary">🏠 Inicio</a>
+            </div>
+        </div>
+        
+        <div class="filters">
+            <form method="GET">
+                <div class="filter-group">
+                    <label>📅 Fecha</label>
+                    <input type="date" name="fecha" value="{{ fecha }}">
+                </div>
+                
+                <div class="filter-group">
+                    <label>🚗 Chofer</label>
+                    <select name="chofer">
+                        <option value="">Todos los choferes</option>
+                        {% for chofer in choferes %}
+                            <option value="{{ chofer.id }}" {% if chofer_id == chofer.id|stringformat:"s" %}selected{% endif %}>
+                                {{ chofer.nombre_completo }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label>📊 Estado</label>
+                    <select name="estado">
+                        <option value="">Todos los estados</option>
+                        <option value="pendiente" {% if estado == 'pendiente' %}selected{% endif %}>⏳ Pendiente</option>
+                        <option value="en_camino" {% if estado == 'en_camino' %}selected{% endif %}>🚚 En Camino</option>
+                        <option value="entregado" {% if estado == 'entregado' %}selected{% endif %}>✅ Entregado</option>
+                        <option value="cancelado" {% if estado == 'cancelado' %}selected{% endif %}>❌ Cancelado</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">🔍 Filtrar</button>
+                </div>
+            </form>
+        </div>
+        
+        {% if envios %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Fecha</th>
+                        <th>Hora</th>
+                        <th>Cliente</th>
+                        <th>Chofer</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for envio in envios %}
+                        <tr>
+                            <td><strong>{{ envio.id }}</strong></td>
+                            <td>{{ envio.fecha_envio|date:"d/m/Y" }}</td>
+                            <td>⏰ {{ envio.hora_estimada|time:"H:i" }}</td>
+                            <td>
+                                👤 {{ envio.cliente.nombre_completo }}
+                                {% if envio.cliente.nombre_local %}
+                                    <br><small style="color: #666;">{{ envio.cliente.nombre_local }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                🚗 {{ envio.chofer.nombre_completo }}
+                                <br><small style="color: #666;">{{ envio.chofer.vehiculo }}</small>
+                            </td>
+                            <td>
+                                <span class="estado-badge estado-{{ envio.estado }}">
+                                    {% if envio.estado == 'pendiente' %}⏳ Pendiente
+                                    {% elif envio.estado == 'en_camino' %}🚚 En Camino
+                                    {% elif envio.estado == 'entregado' %}✅ Entregado
+                                    {% elif envio.estado == 'cancelado' %}❌ Cancelado
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="actions">
+                                    <a href="{% url 'detalle_envio' envio.id %}" class="btn btn-info">👁️ Ver</a>
+                                    <a href="{% url 'actualizar_estado_envio' envio.id %}" class="btn btn-primary">📝 Estado</a>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">📭</div>
+                <h2>No se encontraron envíos</h2>
+                <p>No hay envíos para los filtros seleccionados</p>
+                <a href="{% url 'crear_envio' %}" class="btn btn-primary">➕ Crear Primer Envío</a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -86,28 +86,14 @@
 <body class="bg-light">
 
 
- <nav class="navbar">
-    <a href="{% url 'home' %}" class="navbar-brand">
-        <i class="bi bi-box-seam"></i> Sistema de StockArce
-    </a>
-
-    <input type="checkbox" id="navbar-toggle">
-
-    <label for="navbar-toggle" class="navbar-toggler">
-        <span class="navbar-toggler-icon"></span>
-    </label>
-
+ <nav class="navbar" style="background: linear-gradient(135deg, #fbfbfb 0%);">
+    <a href="{% url 'home' %}" class="navbar-brand"><i class="bi bi-cart-check"></i> VENTAS</a>
     <ul class="navbar-nav">
-        <li><a href="{% url 'home' %}" class="nav-link active">Inicio</a></li>
-        <li><a href="{% url 'lista_productos' %}" class="nav-link">Productos</a></li>
-        
-        <li><a href="{% url 'venta' %}" class="nav-link">Registro de Venta</a></li> 
-        <li><a href="{% url 'consultar_ventas' %}" class="nav-link">Historial de Venta</a></li>
-        
+        <li><a href="{% url 'venta' %}" class="nav-link">Registrar Venta</a></li>
+        <li><a href="{% url 'consultar_ventas' %}" class="nav-link">Historial</a></li>
         <li><a href="{% url 'lista_clientes' %}" class="nav-link">Clientes</a></li>
-        <li><a href="{% url 'crear_cliente' %}" class="nav-link">Crear Cliente</a></li> 
-
-        <li><a href="{% url 'panel_alertas' %}" class="nav-link">Alertas</a></li>
+        <li><a href="{% url 'crear_cliente' %}" class="nav-link">Nuevo Cliente</a></li>
+        <li><a href="{% url 'home' %}" class="nav-link" style="opacity: 0.7;">← Volver</a></li>
     </ul>
 </nav>
     <div class="container mt-5">

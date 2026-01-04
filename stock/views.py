@@ -466,3 +466,222 @@ def api_productos(request):
         })
     
     return JsonResponse(lista, safe=False)
+
+
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import Envio, DetalleEnvio, Chofer, Cliente, Producto
+from django.utils import timezone
+from datetime import date
+
+# ----------------------------------
+# CHOFERES
+# ----------------------------------
+
+def lista_choferes(request):
+    """Lista todos los choferes"""
+    choferes = Chofer.objects.all()
+    return render(request, 'envios/lista_choferes.html', {'choferes': choferes})
+
+
+def crear_chofer(request):
+    """Crear un nuevo chofer"""
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre_completo')
+        telefono = request.POST.get('telefono')
+        vehiculo = request.POST.get('vehiculo')
+        notas = request.POST.get('notas')
+        
+        if nombre and telefono and vehiculo:
+            Chofer.objects.create(
+                nombre_completo=nombre,
+                telefono=telefono,
+                vehiculo=vehiculo,
+                notas=notas
+            )
+            messages.success(request, 'Chofer creado correctamente')
+            return redirect('lista_choferes')
+        else:
+            messages.error(request, 'Complete todos los campos obligatorios')
+    
+    return render(request, 'envios/crear_chofer.html')
+
+
+def editar_chofer(request, chofer_id):
+    """Editar un chofer existente"""
+    chofer = get_object_or_404(Chofer, id=chofer_id)
+    
+    if request.method == 'POST':
+        chofer.nombre_completo = request.POST.get('nombre_completo')
+        chofer.telefono = request.POST.get('telefono')
+        chofer.vehiculo = request.POST.get('vehiculo')
+        chofer.notas = request.POST.get('notas')
+        chofer.activo = request.POST.get('activo') == 'on'
+        chofer.save()
+        
+        messages.success(request, f'Chofer "{chofer.nombre_completo}" actualizado')
+        return redirect('lista_choferes')
+    
+    return render(request, 'envios/editar_chofer.html', {'chofer': chofer})
+
+
+# ----------------------------------
+# ENVÍOS
+# ----------------------------------
+
+def lista_envios(request):
+    """Lista todos los envíos con filtros"""
+    fecha = request.GET.get('fecha')
+    chofer_id = request.GET.get('chofer')
+    estado = request.GET.get('estado')
+    
+    envios = Envio.objects.select_related('cliente', 'chofer').all()
+    
+    # Aplicar filtros
+    if fecha:
+        envios = envios.filter(fecha_envio=fecha)
+    else:
+        # Por defecto mostrar envíos de hoy
+        envios = envios.filter(fecha_envio=date.today())
+    
+    if chofer_id:
+        envios = envios.filter(chofer_id=chofer_id)
+    
+    if estado:
+        envios = envios.filter(estado=estado)
+    
+    # Para los selectores
+    choferes = Chofer.objects.filter(activo=True)
+    
+    context = {
+        'envios': envios,
+        'choferes': choferes,
+        'fecha': fecha or date.today(),
+        'chofer_id': chofer_id,
+        'estado': estado,
+    }
+    
+    return render(request, 'envios/lista_envios.html', context)
+
+
+def crear_envio(request):
+    """Crear un nuevo envío"""
+    if request.method == 'POST':
+        cliente_id = request.POST.get('cliente')
+        chofer_id = request.POST.get('chofer')
+        fecha_envio = request.POST.get('fecha_envio')
+        hora_estimada = request.POST.get('hora_estimada')
+        descripcion = request.POST.get('descripcion')
+        direccion = request.POST.get('direccion_entrega')
+        notas = request.POST.get('notas')
+        
+        # Obtener productos seleccionados
+        productos_ids = request.POST.getlist('productos')
+        cantidades = request.POST.getlist('cantidades')
+        
+        if cliente_id and chofer_id and fecha_envio and hora_estimada:
+            try:
+                cliente = Cliente.objects.get(id=cliente_id)
+                chofer = Chofer.objects.get(id=chofer_id)
+                
+                # Crear el envío
+                envio = Envio.objects.create(
+                    cliente=cliente,
+                    chofer=chofer,
+                    fecha_envio=fecha_envio,
+                    hora_estimada=hora_estimada,
+                    descripcion=descripcion or '',
+                    direccion_entrega=direccion or cliente.direccion or '',
+                    notas=notas
+                )
+                
+                # Agregar productos al envío
+                for prod_id, cant in zip(productos_ids, cantidades):
+                    if prod_id and cant:
+                        producto = Producto.objects.get(id=prod_id)
+                        DetalleEnvio.objects.create(
+                            envio=envio,
+                            producto=producto,
+                            cantidad=int(cant)
+                        )
+                
+                messages.success(request, f'Envío #{envio.id} creado correctamente')
+                return redirect('lista_envios')
+                
+            except Exception as e:
+                messages.error(request, f'Error al crear envío: {str(e)}')
+        else:
+            messages.error(request, 'Complete todos los campos obligatorios')
+    
+    clientes = Cliente.objects.all().order_by('nombre_completo')
+    choferes = Chofer.objects.filter(activo=True).order_by('nombre_completo')
+    productos = Producto.objects.all().order_by('nombre')
+    
+    return render(request, 'envios/crear_envio.html', {
+        'clientes': clientes,
+        'choferes': choferes,
+        'productos': productos,
+        'fecha_hoy': date.today()
+    })
+
+
+def detalle_envio(request, envio_id):
+    """Ver detalles de un envío específico"""
+    envio = get_object_or_404(Envio, id=envio_id)
+    detalles = envio.detalles.select_related('producto').all()
+    
+    return render(request, 'envios/detalle_envio.html', {
+        'envio': envio,
+        'detalles': detalles
+    })
+
+
+def actualizar_estado_envio(request, envio_id):
+    """Actualizar el estado de un envío"""
+    envio = get_object_or_404(Envio, id=envio_id)
+    
+    if request.method == 'POST':
+        nuevo_estado = request.POST.get('estado')
+        
+        if nuevo_estado in dict(Envio.ESTADO_CHOICES):
+            envio.estado = nuevo_estado
+            
+            # Si se marca como entregado, registrar hora
+            if nuevo_estado == 'entregado' and not envio.hora_real_entrega:
+                envio.hora_real_entrega = timezone.now()
+            
+            envio.save()
+            messages.success(request, f'Estado actualizado a "{envio.get_estado_display()}"')
+        else:
+            messages.error(request, 'Estado inválido')
+        
+        return redirect('detalle_envio', envio_id=envio_id)
+    
+    return render(request, 'envios/actualizar_estado.html', {
+        'envio': envio,
+        'estados': Envio.ESTADO_CHOICES
+    })
+
+
+def programa_dia(request):
+    """Vista del programa diario de envíos por chofer"""
+    fecha = request.GET.get('fecha', date.today())
+    
+    envios = Envio.objects.filter(fecha_envio=fecha).select_related(
+        'cliente', 'chofer'
+    ).prefetch_related('detalles__producto').order_by('chofer', 'hora_estimada')
+    
+    # Agrupar por chofer
+    envios_por_chofer = {}
+    for envio in envios:
+        chofer_nombre = envio.chofer.nombre_completo if envio.chofer else "Sin Asignar"
+        if chofer_nombre not in envios_por_chofer:
+            envios_por_chofer[chofer_nombre] = []
+        envios_por_chofer[chofer_nombre].append(envio)
+    
+    return render(request, 'envios/programa_dia.html', {
+        'envios_por_chofer': envios_por_chofer,
+        'fecha': fecha
+    })

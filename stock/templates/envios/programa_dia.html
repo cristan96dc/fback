@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programa del Día - Envíos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .header h1 {
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .fecha-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .fecha-selector input {
+            padding: 10px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        
+        .chofer-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .chofer-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chofer-nombre {
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+        
+        .badge {
+            background: white;
+            color: #667eea;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+        
+        .envios-timeline {
+            position: relative;
+            padding-left: 40px;
+        }
+        
+        .envios-timeline::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(to bottom, #667eea, #764ba2);
+        }
+        
+        .envio-item {
+            position: relative;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s;
+        }
+        
+        .envio-item:hover {
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+            transform: translateX(5px);
+        }
+        
+        .envio-item::before {
+            content: '🚚';
+            position: absolute;
+            left: -28px;
+            top: 20px;
+            width: 30px;
+            height: 30px;
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .envio-hora {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .envio-cliente {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        
+        .envio-direccion {
+            color: #666;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        
+        .envio-productos {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+        
+        .envio-productos strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .producto-lista {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .producto-lista li {
+            padding: 5px 0;
+            color: #555;
+        }
+        
+        .estado-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        
+        .estado-pendiente {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .estado-en_camino {
+            background: #cfe2ff;
+            color: #084298;
+        }
+        
+        .estado-entregado {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+        
+        .estado-cancelado {
+            background: #f8d7da;
+            color: #842029;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state h2 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .empty-state p {
+            color: #666;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+        
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .btn-info:hover {
+            background: #138496;
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .header .fecha-selector,
+            .actions {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚚 Programa de Envíos del Día</h1>
+            <div class="fecha-selector">
+                <form method="GET">
+                    <input type="date" name="fecha" value="{{ fecha }}" onchange="this.form.submit()">
+                </form>
+                <button class="btn btn-primary" onclick="window.print()">🖨️ Imprimir</button>
+                <a href="{% url 'crear_envio' %}" class="btn btn-primary">➕ Nuevo Envío</a>
+            </div>
+        </div>
+        
+        {% if envios_por_chofer %}
+            {% for chofer, envios in envios_por_chofer.items %}
+                <div class="chofer-card">
+                    <div class="chofer-header">
+                        <span class="chofer-nombre">🚗 {{ chofer }}</span>
+                        <span class="badge">{{ envios|length }} envío{{ envios|length|pluralize }}</span>
+                    </div>
+                    
+                    <div class="envios-timeline">
+                        {% for envio in envios %}
+                            <div class="envio-item">
+                                <div class="envio-hora">⏰ {{ envio.hora_estimada|time:"H:i" }}</div>
+                                
+                                <div class="envio-cliente">
+                                    👤 {{ envio.cliente.nombre_completo }}
+                                    {% if envio.cliente.nombre_local %}
+                                        <small>({{ envio.cliente.nombre_local }})</small>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="envio-direccion">
+                                    <span>📍</span>
+                                    <span>{{ envio.direccion_entrega }}</span>
+                                </div>
+                                
+                                {% if envio.descripcion %}
+                                    <div style="color: #555; margin-top: 8px;">
+                                        📝 {{ envio.descripcion }}
+                                    </div>
+                                {% endif %}
+                                
+                                {% if envio.detalles.all %}
+                                    <div class="envio-productos">
+                                        <strong>📦 Productos:</strong>
+                                        <ul class="producto-lista">
+                                            {% for detalle in envio.detalles.all %}
+                                                <li>• {{ detalle.cantidad }}x {{ detalle.producto.nombre }}</li>
+                                            {% endfor %}
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                                
+                                <span class="estado-badge estado-{{ envio.estado }}">
+                                    {% if envio.estado == 'pendiente' %}⏳ Pendiente
+                                    {% elif envio.estado == 'en_camino' %}🚚 En Camino
+                                    {% elif envio.estado == 'entregado' %}✅ Entregado
+                                    {% elif envio.estado == 'cancelado' %}❌ Cancelado
+                                    {% endif %}
+                                </span>
+                                
+                                <div class="actions">
+                                    <a href="{% url 'detalle_envio' envio.id %}" class="btn btn-info btn-sm">
+                                        Ver Detalles
+                                    </a>
+                                    <a href="{% url 'actualizar_estado_envio' envio.id %}" class="btn btn-primary btn-sm">
+                                        Cambiar Estado
+                                    </a>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">📭</div>
+                <h2>No hay envíos programados</h2>
+                <p>No se encontraron envíos para la fecha seleccionada</p>
+                <a href="{% url 'crear_envio' %}" class="btn btn-primary" style="margin-top: 20px;">
+                    ➕ Crear Primer Envío
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -22,10 +22,29 @@ urlpatterns = [
     path('clientes/crear/', views.crear_cliente, name='crear_cliente'),
     path('clientes/editar/<int:cliente_id>/', views.editar_cliente, name='editar_cliente'),
     
+
+ 
+
+    
+    # CHOFERES
+    path('choferes/', views.lista_choferes, name='lista_choferes'),
+    path('choferes/crear/', views.crear_chofer, name='crear_chofer'),
+    path('choferes/editar/<int:chofer_id>/', views.editar_chofer, name='editar_chofer'),
+    
+    # ENVÍOS
+    path('envios/', views.lista_envios, name='lista_envios'),
+    path('envios/crear/', views.crear_envio, name='crear_envio'),
+    path('envios/<int:envio_id>/', views.detalle_envio, name='detalle_envio'),
+    path('envios/<int:envio_id>/estado/', views.actualizar_estado_envio, name='actualizar_estado_envio'),
+    path('envios/programa/', views.programa_dia, name='programa_dia'),
+
     # 🚨 AÑADIR ESTA LÍNEA PARA PDF 🚨
 
     path('subir-imagen/', views.subir_imagen, name='subir_imagen'),
 
 
     path('api/productos/', views.api_productos),
+
+
+
 ]
