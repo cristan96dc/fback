@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Envío #{{ envio.id }}</title>
+        <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <h1>Envío #{{ envio.id }}</h1>
+    
+    <p><a href="{% url 'panel_chofer' %}">Volver al Panel</a></p>
+    
+    <hr>
+    
+    <h2>📍 Información del Envío</h2>
+    
+    <p><strong>Cliente:</strong> {{ envio.venta.cliente.nombre_completo }}</p>
+    <p><strong>Dirección:</strong> {{ envio.direccion_entrega }}</p>
+    <p><strong>Fecha:</strong> {{ envio.fecha_envio }}</p>
+    <p><strong>Hora Estimada:</strong> {{ envio.hora_estimada }}</p>
+    <p><strong>Estado Actual:</strong> <strong>{{ envio.get_estado_display }}</strong></p>
+    
+    {% if envio.hora_real_entrega %}
+    <p><strong>Hora Real de Entrega:</strong> {{ envio.hora_real_entrega }}</p>
+    {% endif %}
+    
+    {% if envio.notas %}
+    <p><strong>Notas:</strong> {{ envio.notas }}</p>
+    {% endif %}
+    
+    <hr>
+    
+    <h2>📦 Productos a Entregar</h2>
+    
+    <table border="1">
+        <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+        </tr>
+        {% for detalle in detalles %}
+        <tr>
+            <td>{{ detalle.producto.nombre }}</td>
+            <td>{{ detalle.cantidad }}</td>
+            <td>${{ detalle.subtotal }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <p><strong>TOTAL:</strong> ${{ envio.venta.valor_total }}</p>
+    
+    <hr>
+    
+    <h2>🔄 CAMBIAR ESTADO</h2>
+    
+    <form method="POST" action="{% url 'chofer_cambiar_estado_envio' envio.id %}">
+        {% csrf_token %}
+        
+        <p>
+            <label>Nuevo Estado:</label><br>
+            <select name="estado" required>
+                {% for valor, nombre in estados %}
+                    <option value="{{ valor }}" {% if envio.estado == valor %}selected{% endif %}>
+                        {{ nombre }}
+                    </option>
+                {% endfor %}
+            </select>
+        </p>
+        
+        <p>
+            <label>Notas adicionales (opcional):</label><br>
+            <textarea name="notas_adicionales" rows="3" cols="50"></textarea>
+        </p>
+        
+        <button type="submit">Actualizar Estado</button>
+    </form>
+    
+    <hr>
+    
+    <p><a href="{% url 'panel_chofer' %}">Volver al Panel</a></p>
+
+</body>
+</html>

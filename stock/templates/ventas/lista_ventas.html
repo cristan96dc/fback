@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Listado de Ventas - Amarce</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="bg-light">
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>📋 Gestión de Ventas y Pedidos</h2>
+            <a href="{% url 'crear_venta' %}" class="btn btn-primary">+ Nueva Venta</a>
+        </div>
+
+        <table class="table table-hover bg-white shadow-sm rounded">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for v in ventas %}
+                <tr>
+                    <td>#{{ v.id }}</td>
+                    <td>{{ v.cliente.nombre_completo }}</td>
+                    <td>${{ v.valor_total }}</td>
+                    <td>
+                        <span class="badge 
+                            {% if v.estado == 'pendiente' %}bg-warning text-dark
+                            {% elif v.estado == 'enviada' %}bg-info
+                            {% elif v.estado == 'entregada' %}bg-success
+                            {% else %}bg-secondary{% endif %}">
+                            {{ v.get_estado_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{% url 'detalle_venta' v.id %}" class="btn btn-sm btn-outline-dark">Ver Detalle / Cambiar Estado</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

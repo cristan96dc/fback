@@ -4,556 +4,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crear Envío</title>
+    <title>Crear Envío - Sistema Amarce</title>
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <style>
-        /* Estilos del autocompletado */
-        .autocomplete-container {
-            position: relative;
-        }
-
-        .autocomplete-suggestions {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: white;
-            border: 2px solid #0d6efd;
-            border-top: none;
-            max-height: 250px;
-            overflow-y: auto;
-            z-index: 9999;
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            border-radius: 0 0 8px 8px;
-            display: none;
-        }
-
-        .autocomplete-suggestion {
-            padding: 12px 15px;
-            cursor: pointer;
-            border-bottom: 1px solid #e9ecef;
-            transition: all 0.2s;
-        }
-
-        .autocomplete-suggestion:last-child {
-            border-bottom: none;
-        }
-
-        .autocomplete-suggestion:hover,
-        .autocomplete-suggestion.active {
-            background: #0d6efd;
-            color: white;
-        }
-
-        .autocomplete-suggestion:hover .suggestion-detail,
-        .autocomplete-suggestion.active .suggestion-detail {
-            color: #e7f3ff;
-        }
-
-        .suggestion-main {
-            font-weight: 600;
-            font-size: 1.05em;
-            color: #212529;
-        }
-
-        .autocomplete-suggestion:hover .suggestion-main,
-        .autocomplete-suggestion.active .suggestion-main {
-            color: white;
-        }
-
-        .suggestion-detail {
-            font-size: 0.9em;
-            color: #6c757d;
-            margin-top: 4px;
-        }
-
-        .form-control:focus {
-            border-color: #0d6efd;
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-        }
-
-        .no-suggestions {
-            padding: 12px 15px;
-            color: #6c757d;
-            font-style: italic;
-            text-align: center;
-        }
-
-        .productos-section {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-
-        .producto-item {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            border: 2px solid #e9ecef;
-        }
-
-        .producto-item-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        .btn-eliminar-producto {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 5px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9em;
-        }
-
-        .btn-eliminar-producto:hover {
-            background: #c82333;
-        }
-
-        .btn-agregar-producto {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
-            font-weight: bold;
-        }
-
-        .btn-agregar-producto:hover {
-            background: #218838;
-        }
-
-        .producto-info {
-            background: #e7f3ff;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
-            display: none;
-        }
-    </style>
 </head>
-
 <body class="bg-light">
-    <nav class="navbar">
-        <a href="{% url 'home' %}" class="navbar-brand">
-            <i class="bi bi-box-seam"></i> Sistema de StockArce
-        </a>
-        <input type="checkbox" id="navbar-toggle">
-        <label for="navbar-toggle" class="navbar-toggler">
-            <span class="navbar-toggler-icon"></span>
-        </label>
-        <ul class="navbar-nav">
-            <li><a href="{% url 'home' %}" class="nav-link">Inicio</a></li>
-            <li><a href="{% url 'lista_envios' %}" class="nav-link active">Envíos</a></li>
-            <li><a href="{% url 'lista_choferes' %}" class="nav-link">Choferes</a></li>
-        </ul>
-    </nav>
-
-    <div class="container mt-5">
-        <div class="lista-header text-center mb-4">
-            <h1>📦 Crear Nuevo Envío</h1>
-        </div>
-
-        {% if messages %}
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-            {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        {% endfor %}
-        {% endif %}
-
-        <div class="card p-4 shadow">
-            <form method="POST" id="envioForm">
-                {% csrf_token %}
-
-                <!-- CLIENTE CON AUTOCOMPLETADO -->
-                <div class="form-group mb-4">
-                    <label for="cliente_search" class="form-label fw-bold">Cliente *</label>
-                    <div class="autocomplete-container">
-                        <input type="text" id="cliente_search" class="form-control form-control-lg"
-                            placeholder="Empiece a escribir el nombre del cliente..." autocomplete="off" required>
-                        <div id="cliente_suggestions" class="autocomplete-suggestions"></div>
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow border-0">
+                    <div class="card-header bg-success text-white">
+                        <h4 class="mb-0">📦 Crear Envío - Venta #{{ venta.id }}</h4>
                     </div>
-                    <input type="hidden" name="cliente" id="cliente_id" required>
-                    <small class="form-text text-muted mt-2 d-block" id="cliente_info"></small>
-                </div>
+                    <div class="card-body p-4">
+                        
+                        <!-- Info de la Venta -->
+                        <div class="alert alert-info">
+                            <h5>📋 Información de la Venta</h5>
+                            <p class="mb-1"><strong>Cliente:</strong> {{ venta.cliente.nombre_completo }}</p>
+                            <p class="mb-1"><strong>Total:</strong> ${{ venta.valor_total }}</p>
+                            <p class="mb-0"><strong>Estado:</strong> {{ venta.get_estado_display }}</p>
+                        </div>
 
-                <!-- CHOFER CON AUTOCOMPLETADO -->
-                <div class="form-group mb-4">
-                    <label for="chofer_search" class="form-label fw-bold">Chofer *</label>
-                    <div class="autocomplete-container">
-                        <input type="text" id="chofer_search" class="form-control form-control-lg"
-                            placeholder="Empiece a escribir el nombre del chofer..." autocomplete="off" required>
-                        <div id="chofer_suggestions" class="autocomplete-suggestions"></div>
+                        <!-- Productos de la venta -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-light">
+                                <strong>Productos a Enviar:</strong>
+                            </div>
+                            <div class="card-body">
+                                <table class="table table-sm mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Producto</th>
+                                            <th>Cantidad</th>
+                                            <th>Stock Actual</th>
+                                            <th>Stock Después</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for detalle in venta.detalles.all %}
+                                        <tr>
+                                            <td>{{ detalle.producto.nombre }}</td>
+                                            <td>{{ detalle.cantidad }}</td>
+                                            <td>{{ detalle.producto.cantidad }}</td>
+                                            <td>
+                                                {% if detalle.producto.cantidad >= detalle.cantidad %}
+                                                    <span class="text-success">
+                                                        {{ detalle.producto.cantidad|add:"-"|add:detalle.cantidad }}
+                                                    </span>
+                                                {% else %}
+                                                    <span class="text-danger">
+                                                        ❌ Stock insuficiente
+                                                    </span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        {% if messages %}
+                            {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+
+                        <!-- Formulario -->
+                        <form method="POST">
+                            {% csrf_token %}
+                            
+                            <div class="row mb-3">
+                                <div class="col-md-12">
+                                    <label class="form-label"><strong>Chofer Asignado *</strong></label>
+                                    <select name="chofer" class="form-select" required>
+                                        <option value="">Seleccione un chofer</option>
+                                        {% for ch in choferes %}
+                                        <option value="{{ ch.id }}">
+                                            {{ ch.nombre_completo }} - {{ ch.vehiculo }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label"><strong>Fecha de Envío *</strong></label>
+                                    <input type="date" name="fecha_envio" class="form-control" 
+                                           value="{{ fecha_hoy|date:'Y-m-d' }}" 
+                                           min="{{ fecha_hoy|date:'Y-m-d' }}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label"><strong>Hora Estimada *</strong></label>
+                                    <input type="time" name="hora_estimada" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Dirección de Entrega</strong></label>
+                                <input type="text" name="direccion_entrega" class="form-control" 
+                                       value="{{ venta.cliente.direccion }}"
+                                       placeholder="Si se deja vacío, se usa la dirección del cliente">
+                                <small class="text-muted">
+                                    Dirección del cliente: {{ venta.cliente.direccion|default:"Sin dirección registrada" }}
+                                </small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label"><strong>Notas Adicionales</strong></label>
+                                <textarea name="notas" class="form-control" rows="3" 
+                                          placeholder="Instrucciones especiales, observaciones...">{{ venta.notas }}</textarea>
+                            </div>
+
+                            <div class="alert alert-warning">
+                                <strong>⚠️ Importante:</strong>
+                                <ul class="mb-0">
+                                    <li>Al crear este envío, el <strong>stock se descontará automáticamente</strong></li>
+                                    <li>La venta pasará a estado <strong>"Enviada"</strong></li>
+                                    <li>Verifica que haya stock suficiente en la tabla de arriba</li>
+                                </ul>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    ✅ Crear Envío y Descontar Stock
+                                </button>
+                                <a href="{% url 'asignar_envios_pendientes' %}" class="btn btn-outline-secondary">
+                                    Cancelar
+                                </a>
+                            </div>
+                        </form>
                     </div>
-                    <input type="hidden" name="chofer" id="chofer_id" required>
-                    <small class="form-text text-muted mt-2 d-block" id="chofer_info"></small>
                 </div>
-
-                <!-- FECHA Y HORA -->
-                <div class="row mb-4">
-                    <div class="col-md-6">
-                        <label for="fecha_envio" class="form-label fw-bold">Fecha de Envío *</label>
-                        <input type="date" name="fecha_envio" id="fecha_envio" class="form-control form-control-lg" 
-                               value="{{ fecha_hoy }}" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label for="hora_estimada" class="form-label fw-bold">Hora Estimada *</label>
-                        <input type="time" name="hora_estimada" id="hora_estimada" class="form-control form-control-lg" required>
-                    </div>
-                </div>
-
-                <!-- DIRECCIÓN DE ENTREGA -->
-                <div class="form-group mb-4">
-                    <label for="direccion_entrega" class="form-label fw-bold">Dirección de Entrega *</label>
-                    <input type="text" name="direccion_entrega" id="direccion_entrega" 
-                           class="form-control form-control-lg" placeholder="Se completará automáticamente al seleccionar cliente" required>
-                </div>
-
-                <!-- DESCRIPCIÓN -->
-                <div class="form-group mb-4">
-                    <label for="descripcion" class="form-label fw-bold">Descripción del Envío</label>
-                    <textarea name="descripcion" id="descripcion" class="form-control" rows="2" 
-                              placeholder="Ej: Entrega semanal de productos"></textarea>
-                </div>
-
-                <!-- NOTAS -->
-                <div class="form-group mb-4">
-                    <label for="notas" class="form-label fw-bold">Notas Adicionales</label>
-                    <textarea name="notas" id="notas" class="form-control" rows="2" 
-                              placeholder="Instrucciones especiales, observaciones..."></textarea>
-                </div>
-
-                <!-- PRODUCTOS A ENVIAR -->
-                <div class="productos-section">
-                    <h4 class="mb-3">📦 Productos a Enviar</h4>
-                    <div id="productos-container">
-                        <!-- El primer producto se generará con JavaScript -->
-                    </div>
-                    <button type="button" class="btn-agregar-producto" onclick="agregarProducto()">
-                        ➕ Agregar Producto
-                    </button>
-                </div>
-
-                <!-- BOTONES DE ACCIÓN -->
-                <div class="d-grid gap-2 mt-4">
-                    <button type="submit" class="btn btn-primary btn-lg">
-                        ✅ Crear Envío
-                    </button>
-                    <a href="{% url 'lista_envios' %}" class="btn btn-secondary">❌ Cancelar</a>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 
-    <script>
-        // ==================== DATOS ====================
-        const clientes = [
-            {% for c in clientes %}
-            {
-                id: {{ c.id }},
-                nombre: "{{ c.nombre_completo|escapejs }}",
-                local: "{{ c.nombre_local|default:''|escapejs }}",
-                direccion: "{{ c.direccion|default:''|escapejs }}"
-            }{% if not forloop.last %},{% endif %}
-            {% endfor %}
-        ];
-
-        const choferes = [
-            {% for ch in choferes %}
-            {
-                id: {{ ch.id }},
-                nombre: "{{ ch.nombre_completo|escapejs }}",
-                vehiculo: "{{ ch.vehiculo|escapejs }}",
-                telefono: "{{ ch.telefono|escapejs }}"
-            }{% if not forloop.last %},{% endif %}
-            {% endfor %}
-        ];
-
-        const productos = [
-            {% for p in productos %}
-            {
-                id: {{ p.id }},
-                nombre: "{{ p.nombre|escapejs }}",
-                stock: {{ p.cantidad }}
-            }{% if not forloop.last %},{% endif %}
-            {% endfor %}
-        ];
-
-        let clienteSeleccionado = null;
-        let choferSeleccionado = null;
-        let productoCounter = 0;
-
-        // ==================== AUTOCOMPLETADO DE CLIENTES ====================
-        const clienteSearch = document.getElementById('cliente_search');
-        const clienteId = document.getElementById('cliente_id');
-        const clienteInfo = document.getElementById('cliente_info');
-        const clienteSuggestions = document.getElementById('cliente_suggestions');
-
-        clienteSearch.addEventListener('input', function() {
-            const query = this.value.toLowerCase().trim();
-            clienteSuggestions.innerHTML = '';
-
-            if (query.length === 0) {
-                clienteSuggestions.style.display = 'none';
-                clienteSeleccionado = null;
-                clienteId.value = '';
-                clienteInfo.textContent = '';
-                document.getElementById('direccion_entrega').value = '';
-                return;
-            }
-
-            const filtered = clientes
-                .filter(c => 
-                    c.nombre.toLowerCase().includes(query) || 
-                    c.local.toLowerCase().includes(query)
-                )
-                .sort((a, b) => a.nombre.localeCompare(b.nombre));
-
-            if (filtered.length > 0) {
-                filtered.forEach(cliente => {
-                    const div = document.createElement('div');
-                    div.className = 'autocomplete-suggestion';
-                    div.innerHTML = `
-                        <div class="suggestion-main">👤 ${cliente.nombre}</div>
-                        <div class="suggestion-detail">
-                            ${cliente.local ? '🏪 Local: ' + cliente.local : 'Sin local'}
-                            ${cliente.direccion ? ' | 📍 ' + cliente.direccion : ''}
-                        </div>
-                    `;
-                    div.addEventListener('click', () => seleccionarCliente(cliente));
-                    clienteSuggestions.appendChild(div);
-                });
-                clienteSuggestions.style.display = 'block';
-            } else {
-                clienteSuggestions.innerHTML = '<div class="no-suggestions">❌ No se encontraron clientes</div>';
-                clienteSuggestions.style.display = 'block';
-            }
-        });
-
-        function seleccionarCliente(cliente) {
-            clienteSearch.value = cliente.nombre;
-            clienteId.value = cliente.id;
-            clienteSeleccionado = cliente;
-            clienteSuggestions.style.display = 'none';
-            
-            // Auto-completar dirección
-            if (cliente.direccion) {
-                document.getElementById('direccion_entrega').value = cliente.direccion;
-            }
-            
-            clienteInfo.innerHTML = `✅ <strong>Cliente seleccionado:</strong> ${cliente.nombre}`;
-            clienteInfo.className = 'form-text text-success mt-2 d-block fw-bold';
-        }
-
-        // ==================== AUTOCOMPLETADO DE CHOFERES ====================
-        const choferSearch = document.getElementById('chofer_search');
-        const choferId = document.getElementById('chofer_id');
-        const choferInfo = document.getElementById('chofer_info');
-        const choferSuggestions = document.getElementById('chofer_suggestions');
-
-        choferSearch.addEventListener('input', function() {
-            const query = this.value.toLowerCase().trim();
-            choferSuggestions.innerHTML = '';
-
-            if (query.length === 0) {
-                choferSuggestions.style.display = 'none';
-                choferSeleccionado = null;
-                choferId.value = '';
-                choferInfo.textContent = '';
-                return;
-            }
-
-            const filtered = choferes
-                .filter(ch => 
-                    ch.nombre.toLowerCase().includes(query) || 
-                    ch.vehiculo.toLowerCase().includes(query)
-                )
-                .sort((a, b) => a.nombre.localeCompare(b.nombre));
-
-            if (filtered.length > 0) {
-                filtered.forEach(chofer => {
-                    const div = document.createElement('div');
-                    div.className = 'autocomplete-suggestion';
-                    div.innerHTML = `
-                        <div class="suggestion-main">🧑‍✈️ ${chofer.nombre}</div>
-                        <div class="suggestion-detail">🚚 Vehículo: ${chofer.vehiculo} | 📞 ${chofer.telefono}</div>
-                    `;
-                    div.addEventListener('click', () => seleccionarChofer(chofer));
-                    choferSuggestions.appendChild(div);
-                });
-                choferSuggestions.style.display = 'block';
-            } else {
-                choferSuggestions.innerHTML = '<div class="no-suggestions">❌ No se encontraron choferes</div>';
-                choferSuggestions.style.display = 'block';
-            }
-        });
-
-        function seleccionarChofer(chofer) {
-            choferSearch.value = chofer.nombre;
-            choferId.value = chofer.id;
-            choferSeleccionado = chofer;
-            choferSuggestions.style.display = 'none';
-            
-            choferInfo.innerHTML = `✅ <strong>Chofer seleccionado:</strong> ${chofer.nombre} (${chofer.vehiculo})`;
-            choferInfo.className = 'form-text text-success mt-2 d-block fw-bold';
-        }
-
-        // ==================== GESTIÓN DE PRODUCTOS ====================
-        function agregarProducto() {
-            productoCounter++;
-            const container = document.getElementById('productos-container');
-            
-            const div = document.createElement('div');
-            div.className = 'producto-item';
-            div.id = `producto-${productoCounter}`;
-            div.innerHTML = `
-                <div class="producto-item-header">
-                    <h5 class="mb-0">Producto #${productoCounter}</h5>
-                    <button type="button" class="btn-eliminar-producto" onclick="eliminarProducto(${productoCounter})">
-                        ❌ Eliminar
-                    </button>
-                </div>
-                
-                <div class="autocomplete-container mb-3">
-                    <input type="text" 
-                           id="producto_search_${productoCounter}" 
-                           class="form-control producto-search" 
-                           placeholder="Buscar producto..."
-                           autocomplete="off">
-                    <div id="producto_suggestions_${productoCounter}" class="autocomplete-suggestions"></div>
-                </div>
-                
-                <input type="hidden" name="productos" id="producto_id_${productoCounter}">
-                
-                <div class="mb-3">
-                    <label class="form-label">Cantidad</label>
-                    <input type="number" 
-                           name="cantidades" 
-                           id="cantidad_${productoCounter}" 
-                           class="form-control" 
-                           min="1" 
-                           placeholder="Cantidad a enviar">
-                </div>
-                
-                <div id="producto_info_${productoCounter}" class="producto-info"></div>
-            `;
-            
-            container.appendChild(div);
-            initProductoAutocomplete(productoCounter);
-        }
-
-        function initProductoAutocomplete(index) {
-            const searchInput = document.getElementById(`producto_search_${index}`);
-            const suggestions = document.getElementById(`producto_suggestions_${index}`);
-            const hiddenInput = document.getElementById(`producto_id_${index}`);
-            const infoDiv = document.getElementById(`producto_info_${index}`);
-
-            searchInput.addEventListener('input', function() {
-                const query = this.value.toLowerCase().trim();
-                suggestions.innerHTML = '';
-
-                if (query.length === 0) {
-                    suggestions.style.display = 'none';
-                    hiddenInput.value = '';
-                    infoDiv.style.display = 'none';
-                    return;
-                }
-
-                const filtered = productos
-                    .filter(p => p.nombre.toLowerCase().includes(query))
-                    .sort((a, b) => a.nombre.localeCompare(b.nombre));
-
-                if (filtered.length > 0) {
-                    filtered.forEach(producto => {
-                        const div = document.createElement('div');
-                        div.className = 'autocomplete-suggestion';
-                        div.innerHTML = `
-                            <div class="suggestion-main">${producto.nombre}</div>
-                            <div class="suggestion-detail">📦 Stock disponible: ${producto.stock} unidades</div>
-                        `;
-                        div.addEventListener('click', () => seleccionarProducto(producto, index));
-                        suggestions.appendChild(div);
-                    });
-                    suggestions.style.display = 'block';
-                } else {
-                    suggestions.innerHTML = '<div class="no-suggestions">❌ No se encontraron productos</div>';
-                    suggestions.style.display = 'block';
-                }
-            });
-        }
-
-        function seleccionarProducto(producto, index) {
-            document.getElementById(`producto_search_${index}`).value = producto.nombre;
-            document.getElementById(`producto_id_${index}`).value = producto.id;
-            document.getElementById(`producto_suggestions_${index}`).style.display = 'none';
-            
-            const infoDiv = document.getElementById(`producto_info_${index}`);
-            infoDiv.innerHTML = `✅ <strong>Stock disponible:</strong> ${producto.stock} unidades`;
-            infoDiv.style.display = 'block';
-        }
-
-        function eliminarProducto(index) {
-            const container = document.getElementById('productos-container');
-            if (container.children.length > 1) {
-                document.getElementById(`producto-${index}`).remove();
-            } else {
-                alert('❌ Debe haber al menos un producto en el envío');
-            }
-        }
-
-        // ==================== CERRAR SUGERENCIAS AL HACER CLIC FUERA ====================
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.autocomplete-container')) {
-                document.querySelectorAll('.autocomplete-suggestions').forEach(s => {
-                    s.style.display = 'none';
-                });
-            }
-        });
-
-        // ==================== VALIDACIÓN DEL FORMULARIO ====================
-        document.getElementById('envioForm').addEventListener('submit', function(e) {
-            if (!clienteId.value) {
-                e.preventDefault();
-                alert('❌ Por favor seleccione un cliente válido');
-                clienteSearch.focus();
-                return false;
-            }
-            
-            if (!choferId.value) {
-                e.preventDefault();
-                alert('❌ Por favor seleccione un chofer válido');
-                choferSearch.focus();
-                return false;
-            }
-
-            // Validar que haya al menos un producto
-            const productosIds = document.querySelectorAll('input[name="productos"]');
-            let tieneProductos = false;
-            productosIds.forEach(input => {
-                if (input.value) tieneProductos = true;
-            });
-
-            if (!tieneProductos) {
-                e.preventDefault();
-                alert('❌ Debe agregar al menos un producto al envío');
-                return false;
-            }
-        });
-
-        // ==================== INICIALIZAR PRIMER PRODUCTO ====================
-        agregarProducto();
-    </script>
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
 </body>
 </html>

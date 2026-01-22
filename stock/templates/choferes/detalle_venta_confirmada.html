@@ -1,0 +1,76 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+     <meta charset="UTF-8">
+    <title>Venta #{{ venta.id }}</title>
+         <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+<body>
+    <h1>Venta Confirmada #{{ venta.id }}</h1>
+    
+    <p><a href="{% url 'panel_chofer' %}">Volver al Panel</a></p>
+    
+    <hr>
+    
+    <h2>Información</h2>
+    
+    <p><strong>Cliente:</strong> {{ venta.cliente.nombre_completo }}</p>
+    <p><strong>Dirección:</strong> {{ venta.cliente.direccion }}</p>
+    <p><strong>Fecha Programada:</strong> {{ venta.fecha_envio_programada|default:"Sin fecha" }}</p>
+    <p><strong>Hora Programada:</strong> {{ venta.hora_envio_programada|default:"Sin hora" }}</p>
+    <p><strong>Estado Actual:</strong> <strong>{{ venta.get_estado_display }}</strong></p>
+    
+    {% if venta.notas %}
+    <p><strong>Notas:</strong> {{ venta.notas }}</p>
+    {% endif %}
+    
+    <hr>
+    
+    <h2>Productos a Entregar</h2>
+    
+    <table border="1">
+        <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio</th>
+        </tr>
+        {% for detalle in detalles %}
+        <tr>
+            <td>{{ detalle.producto.nombre }}</td>
+            <td>{{ detalle.cantidad }}</td>
+            <td>${{ detalle.subtotal }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <p><strong>TOTAL:</strong> ${{ venta.valor_total }}</p>
+    
+    <hr>
+    
+    <h2>CAMBIAR ESTADO</h2>
+    
+    <form method="POST">
+        {% csrf_token %}
+        
+        <p>
+            <label>Nuevo Estado:</label><br>
+            <select name="estado" required>
+                {% for valor, nombre in estados %}
+                    <option value="{{ valor }}" {% if venta.estado == valor %}selected{% endif %}>
+                        {{ nombre }}
+                    </option>
+                {% endfor %}
+            </select>
+        </p>
+        
+        <p>
+            <label>Notas adicionales (opcional):</label><br>
+            <textarea name="notas_adicionales" rows="4" cols="50"></textarea>
+        </p>
+        
+        <button type="submit">ACTUALIZAR ESTADO</button>
+    </form>
+
+</body>
+</html>

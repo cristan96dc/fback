@@ -4,219 +4,158 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home - Sistema de Stock</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <title>Panel Amarce - Gestión Total</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
-        /* Estilos para las secciones categorizadas */
-        .category-section {
-            margin-bottom: 3rem;
-        }
-        
-        .category-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 10px;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        
-        .category-header i {
-            font-size: 2rem;
-        }
-        
-        .category-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin: 0;
-        }
-        
-        .category-subtitle {
-            font-size: 0.9rem;
-            opacity: 0.9;
-            margin: 0;
-        }
+        .stat-card { transition: all 0.3s; border: none; border-radius: 15px; }
+        .stat-card:hover { transform: translateY(-10px); shadow: 0 1rem 3rem rgba(0,0,0,.175)!important; }
+        .icon-box { width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; border-radius: 12px; margin-bottom: 1rem; }
     </style>
 </head>
-<body>
-    
+<body class="bg-light">
 
-    <div class="container">
-        <div class="text-center mb-4">
-            <h1>🏠 Panel Principal</h1>
-            <p class="text-muted">Gestione su negocio de forma eficiente</p>
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <div>
+                <h1 class="display-5 fw-bold text-dark">SISTEMA AMARCE</h1>
+                <p class="text-muted">Gestión de Inventario, Ventas y Logística</p>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-white text-dark shadow-sm p-3 rounded-pill border">
+                    📅 {{ fecha_hoy|date:"l d \d\e F, Y" }}
+                </span>
+            </div>
         </div>
 
-        <!-- ALERTA DE STOCK BAJO -->
         {% if con_alerta %}
-        <div class="alert alert-danger mb-4">
+        <div class="alert alert-danger shadow-sm border-0 d-flex align-items-center mb-5" role="alert">
+            <span class="fs-3 me-3">⚠️</span>
             <div>
-                <strong>🚨 ¡ALERTA URGENTE!</strong>
-                <span class="ms-2">Hay <strong>{{ productos_bajo_stock }}</strong> producto(s) con stock BAJO.</span>
+                <strong>Atención:</strong> Tienes <strong>{{ productos_bajo_stock }}</strong> productos con stock crítico.
+                <a href="{% url 'panel_alertas' %}" class="alert-link ms-2">Revisar ahora &rarr;</a>
             </div>
-            <a href="{% url 'panel_alertas' %}" class="btn btn-danger btn-sm">
-                Ver Panel de Avisos
-            </a>
         </div>
         {% endif %}
 
-        <!-- ====================================== -->
-        <!-- SECCIÓN 1: GESTIÓN DE STOCK/PRODUCTOS -->
-        <!-- ====================================== -->
-        <div class="category-section">
-            <div class="category-header">
-                <i class="bi bi-box-seam-fill"></i>
-                <div>
-                    <h2 class="category-title">📦 Gestión de Stock y Productos</h2>
-                    <p class="category-subtitle">Control de inventario, productos y tipos</p>
+        <!-- PRIMERA FILA: Módulos principales -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="card h-100 shadow-sm stat-card p-3">
+                    <div class="card-body">
+                        <div class="icon-box bg-primary bg-opacity-10 text-primary">📦</div>
+                        <h5 class="card-title fw-bold">Inventario</h5>
+                        <p class="card-text text-muted small">Control de stock y precios de productos.</p>
+                        <a href="{% url 'lista_productos' %}" class="btn btn-primary w-100 rounded-pill">Gestionar</a>
+                    </div>
                 </div>
             </div>
-            
-            <div class="home-grid">
-                <!-- Alerta de Stock -->
-                {% if con_alerta %}
-                <a href="{% url 'panel_alertas' %}" class="home-card alert-card">
-                    <span class="emoji">⚠️</span>
-                    <span class="home-card-title">Alertas de Stock</span>
-                    <span class="text-danger fw-bold">({{ productos_bajo_stock }})</span>
-                </a>
-                {% else %}
-                <a href="{% url 'panel_alertas' %}" class="home-card">
-                    <span class="emoji">✅</span>
-                    <span class="home-card-title">Estado del Stock</span>
-                    <span class="text-success fw-bold">Normal</span>
-                </a>
-                {% endif %}
 
-                <!-- Lista de Productos -->
-                <a href="{% url 'lista_productos' %}" class="home-card">
-                    <span class="emoji">📋</span>
-                    <span class="home-card-title">Lista de Productos</span>
-                </a>
+            <div class="col-md-3">
+                <div class="card h-100 shadow-sm stat-card p-3">
+                    <div class="card-body">
+                        <div class="icon-box bg-success bg-opacity-10 text-success">💰</div>
+                        <h5 class="card-title fw-bold">Ventas</h5>
+                        <div class="mb-2">
+                            <span class="badge bg-success">{{ ventas_pendientes }} Pendientes</span>
+                        </div>
+                        <a href="{% url 'lista_ventas' %}" class="btn btn-success w-100 rounded-pill">Ver Pedidos</a>
+                    </div>
+                </div>
+            </div>
 
-                <!-- Crear Tipo -->
-                <a href="{% url 'crear_tipo' %}" class="home-card">
-                    <span class="emoji">🏷️</span>
-                    <span class="home-card-title">Crear Tipo</span>
-                </a>
+            <div class="col-md-3">
+                <div class="card h-100 shadow-sm stat-card p-3">
+                    <div class="card-body">
+                        <div class="icon-box bg-info bg-opacity-10 text-info">🚚</div>
+                        <h5 class="card-title fw-bold">Envíos</h5>
+                        <p class="card-text text-muted small">Hoja de ruta y tracking de choferes.</p>
+                        <a href="{% url 'lista_envios' %}" class="btn btn-info text-white w-100 rounded-pill">Logística</a>
+                    </div>
+                </div>
+            </div>
 
-                <!-- Crear Producto -->
-                <a href="{% url 'crear_producto' %}" class="home-card">
-                    <span class="emoji">➕</span>
-                    <span class="home-card-title">Crear Producto</span>
-                </a>
-
-                <!-- Subir Imagen -->
-                <a href="{% url 'subir_imagen' %}" class="home-card">
-                    <span class="emoji">📸</span>
-                    <span class="home-card-title">Subir Imagen</span>
-                </a>
+            <!-- 🆕 SECCIÓN CHOFERES -->
+            <div class="col-md-3">
+                <div class="card h-100 shadow-sm stat-card p-3 border-warning">
+                    <div class="card-body">
+                        <div class="icon-box bg-warning bg-opacity-10 text-warning">👷‍♂️</div>
+                        <h5 class="card-title fw-bold">Choferes</h5>
+                        <p class="card-text text-muted small">Panel de control para conductores.</p>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'panel_chofer' %}" class="btn btn-warning w-100 rounded-pill">
+                                📱 Panel Choferes
+                            </a>
+                            <a href="{% url 'lista_choferes' %}" class="btn btn-sm btn-outline-warning rounded-pill">
+                                Gestionar Choferes
+                            </a>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- ====================================== -->
-        <!-- SECCIÓN 2: GESTIÓN DE VENTAS -->
-        <!-- ====================================== -->
-        <div class="category-section">
-            <div class="category-header" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-                <i class="bi bi-cart-check-fill"></i>
-                <div>
-                    <h2 class="category-title">💰 Gestión de Ventas</h2>
-                    <p class="category-subtitle">Registro y consulta de ventas</p>
+        <!-- SEGUNDA FILA: Acceso rápido -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-3">
+                <div class="card h-100 shadow-sm stat-card p-3 border-secondary">
+                    <div class="card-body">
+                        <div class="icon-box bg-secondary bg-opacity-10 text-secondary">👥</div>
+                        <h5 class="card-title fw-bold">Clientes</h5>
+                        <p class="card-text text-muted small">Gestión de base de datos de clientes.</p>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'lista_clientes' %}" class="btn btn-secondary w-100 rounded-pill">
+                                Ver Clientes
+                            </a>
+                            <a href="{% url 'crear_cliente' %}" class="btn btn-sm btn-outline-secondary rounded-pill">
+                                ➕ Nuevo Cliente
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="home-grid">
-                <!-- Registrar Venta -->
-                <a href="{% url 'venta' %}" class="home-card">
-                    <span class="emoji">💸</span>
-                    <span class="home-card-title">Registrar Venta</span>
-                </a>
-
-                <!-- Historial de Ventas -->
-                <a href="{% url 'consultar_ventas' %}" class="home-card">
-                    <span class="emoji">📊</span>
-                    <span class="home-card-title">Historial de Ventas</span>
-                </a>
             </div>
         </div>
 
-        <!-- ====================================== -->
-        <!-- SECCIÓN 3: GESTIÓN DE CLIENTES -->
-        <!-- ====================================== -->
-        <div class="category-section">
-            <div class="category-header" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
-                <i class="bi bi-people-fill"></i>
-                <div>
-                    <h2 class="category-title">👥 Gestión de Clientes</h2>
-                    <p class="category-subtitle">Administración de clientes</p>
+        <div class="mt-5 pt-4 border-top">
+            <h4 class="fw-bold mb-4">Acciones Rápidas</h4>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <a href="{% url 'crear_venta' %}" class="btn btn-outline-primary btn-lg w-100 shadow-sm border-0 bg-white py-3">
+                        ➕ Nueva Venta
+                    </a>
                 </div>
-            </div>
-            
-            <div class="home-grid">
-                <!-- Lista de Clientes -->
-                <a href="{% url 'lista_clientes' %}" class="home-card">
-                    <span class="emoji">📇</span>
-                    <span class="home-card-title">Lista de Clientes</span>
-                </a>
-
-                <!-- Crear Cliente -->
-                <a href="{% url 'crear_cliente' %}" class="home-card">
-                    <span class="emoji">👤</span>
-                    <span class="home-card-title">Crear Cliente</span>
-                </a>
+                <div class="col-md-4">
+                    <a href="{% url 'programa_dia' %}" class="btn btn-outline-info btn-lg w-100 shadow-sm border-0 bg-white py-3 text-info">
+                        📅 Hoja de Ruta Hoy
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{% url 'consultar_ventas' %}" class="btn btn-outline-dark btn-lg w-100 shadow-sm border-0 bg-white py-3">
+                        📊 Reporte de Ingresos
+                    </a>
+                </div>
             </div>
         </div>
 
-        <!-- ====================================== -->
-        <!-- SECCIÓN 4: GESTIÓN DE ENVÍOS -->
-        <!-- ====================================== -->
-        <div class="category-section">
-            <div class="category-header" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
-                <i class="bi bi-truck"></i>
-                <div>
-                    <h2 class="category-title">🚚 Gestión de Envíos y Choferes</h2>
-                    <p class="category-subtitle">Control de entregas y conductores</p>
+        <!-- 🆕 SECCIÓN DE ACCESO RÁPIDO PARA CHOFERES -->
+        <div class="mt-5 pt-4 border-top">
+            <h4 class="fw-bold mb-4 text-warning">Acceso Directo Choferes</h4>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <a href="{% url 'panel_chofer' %}" class="btn btn-warning btn-lg w-100 shadow-sm border-0 py-3 d-flex align-items-center justify-content-center">
+                        <span class="fs-4 me-2">🚚</span>
+                        <span>Ingresar al Panel Choferes</span>
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="{% url 'asignar_envios_pendientes' %}" class="btn btn-outline-warning btn-lg w-100 shadow-sm border-2 py-3 d-flex align-items-center justify-content-center">
+                        <span class="fs-4 me-2">📋</span>
+                        <span>Asignar Envíos Pendientes</span>
+                    </a>
                 </div>
             </div>
-            
-            <div class="home-grid">
-                <!-- Lista de Envíos -->
-                <a href="{% url 'lista_envios' %}" class="home-card">
-                    <span class="emoji">📦</span>
-                    <span class="home-card-title">Lista de Envíos</span>
-                </a>
-
-                <!-- Crear Envío -->
-                <a href="{% url 'crear_envio' %}" class="home-card">
-                    <span class="emoji">📮</span>
-                    <span class="home-card-title">Crear Envío</span>
-                </a>
-
-                <!-- Programa del Día -->
-                <a href="{% url 'programa_dia' %}" class="home-card">
-                    <span class="emoji">📅</span>
-                    <span class="home-card-title">Programa del Día</span>
-                </a>
-
-                <!-- Lista de Choferes -->
-                <a href="{% url 'lista_choferes' %}" class="home-card">
-                    <span class="emoji">🧑‍✈️</span>
-                    <span class="home-card-title">Lista de Choferes</span>
-                </a>
-
-                <!-- Crear Chofer -->
-                <a href="{% url 'crear_chofer' %}" class="home-card">
-                    <span class="emoji">➕👨‍✈️</span>
-                    <span class="home-card-title">Crear Chofer</span>
-                </a>
-            </div>
         </div>
-
     </div>
+
 </body>
 </html>

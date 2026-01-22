@@ -1,52 +1,25 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crear Tipo de Producto</title>
-    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>Nuevo Tipo de Producto</title>
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
-
 <body class="bg-light">
-
-   
     <div class="container mt-5">
-
-        <h1 class="mb-4 text-center">🏷️ Crear Nuevo Tipo de Producto</h1>
-
-        <div class="row justify-content-center">
-            <div class="col-md-6">
-
-                <form method="POST" class="card shadow-lg p-5">
+        <div class="card mx-auto shadow-sm" style="max-width: 400px;">
+            <div class="card-body text-center">
+                <h4>Nuevo Tipo de Producto</h4>
+                <form method="POST">
                     {% csrf_token %}
-
-                    <div class="mb-3">
-                        <label for="id_nombre" class="form-label fw-bold">Nombre del Tipo:</label>
-                        <input type="text" name="nombre" class="form-control form-control-lg" id="id_nombre"
-                            placeholder="Ej: Electrónica, Alimentos, Ropa" required>
-                    </div>
-
-                    <div class="d-grid gap-2 mt-4">
-                        <button type="submit" class="btn btn-success btn-lg">
-                            <i class="bi bi-save"></i> Guardar Tipo
-                        </button>
-                        <a href="{% url 'lista_productos' %}" class="btn btn-secondary">
-                            Volver a la Lista de Productos
-                        </a>
-                    </div>
+                    <input type="text" name="nombre" class="form-control mb-3" placeholder="Ej: Bebidas" required>
+                    <button type="submit" class="btn btn-success w-100">Crear Categoría</button>
+                    <a href="{% url 'lista_productos' %}" class="btn btn-link text-muted">Volver</a>
                 </form>
-
             </div>
         </div>
-
     </div>
-
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
 </body>
-
 </html>

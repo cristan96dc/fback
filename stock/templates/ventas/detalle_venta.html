@@ -6,10 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
      <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <title>Detalle Venta #{{ venta.id }} - Sistema Amarce</title>
+    <title>Detalle Venta #{{ venta.id }}</title>
 </head>
 <body class="bg-light">
     <div class="container mt-4">
+        
+        {% if messages %}
+        <div class="row">
+            <div class="col-12">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
         <div class="row">
             <div class="col-md-8">
                 <!-- Información de la Venta -->
@@ -78,115 +92,81 @@
                             </tbody>
                         </table>
 
-                        <!-- Botones de Acción -->
+                        <!-- Botones -->
                         <div class="d-grid gap-2">
-                            {% if venta.estado == 'pendiente' or venta.estado == 'confirmada' %}
-                                <a href="{% url 'crear_envio' venta.id %}" class="btn btn-success btn-lg">
-                                    🚚 Crear Envío
-                                </a>
-                            {% endif %}
-                            
-                            <a href="{% url 'lista_ventas' %}" class="btn btn-secondary">Volver a Ventas</a>
+                            <a href="{% url 'asignar_envios_pendientes' %}" class="btn btn-secondary">
+                                ← Volver a Asignar Envíos
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="col-md-4">
-                <!-- Cambiar Estado -->
+                <!-- ASIGNAR CHOFER Y CAMBIAR ESTADO EN UN SOLO FORMULARIO -->
                 {% if venta.estado in 'pendiente,confirmada' %}
-                <div class="card shadow mb-4">
-                    <div class="card-header bg-warning">
-                        <h5 class="mb-0">🔄 Cambiar Estado</h5>
-                    </div>
-                    <div class="card-body">
-                        <form method="POST" action="{% url 'actualizar_estado_venta' venta.id %}">
-                            {% csrf_token %}
-                            <div class="mb-3">
-                                <label class="form-label">Nuevo Estado</label>
-                                <select name="estado" class="form-select" required>
-                                    {% if venta.estado == 'pendiente' %}
-                                        <option value="confirmada">Confirmar Venta</option>
-                                        <option value="cancelada">Cancelar</option>
-                                    {% elif venta.estado == 'confirmada' %}
-                                        <option value="pendiente">Volver a Pendiente</option>
-                                        <option value="cancelada">Cancelar</option>
-                                    {% endif %}
-                                </select>
-                            </div>
-                            <button type="submit" class="btn btn-warning w-100">Actualizar</button>
-                        </form>
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- Asignar Chofer y Fecha -->
-                {% if venta.estado in 'pendiente,confirmada' %}
-                <div class="card shadow">
-                    <div class="card-header bg-info text-white">
-                        <h5 class="mb-0">👤 Asignar Chofer</h5>
+                <div class="card shadow mb-3">
+                    <div class="card-header {% if venta.estado == 'pendiente' %}bg-danger{% else %}bg-success{% endif %} text-white">
+                        <h5 class="mb-0">🚚 Asignar Chofer y Confirmar</h5>
                     </div>
                     <div class="card-body">
                         <form method="POST" action="{% url 'asignar_chofer_venta' venta.id %}">
                             {% csrf_token %}
+                            
                             <div class="mb-3">
-                                <label class="form-label">Chofer</label>
-                                <select name="chofer" class="form-select">
-                                    <option value="">Sin asignar</option>
+                                <label class="form-label"><strong>Chofer</strong></label>
+                                <select name="chofer" class="form-select" required>
+                                    <option value="">Seleccione chofer</option>
                                     {% for chofer in choferes %}
-                                    <option value="{{ chofer.id }}" {% if venta.chofer.id == chofer.id %}selected{% endif %}>
+                                    <option value="{{ chofer.id }}" 
+                                        {% if venta.chofer and venta.chofer.id == chofer.id %}selected{% endif %}>
                                         {{ chofer.nombre_completo }} - {{ chofer.vehiculo }}
                                     </option>
                                     {% endfor %}
                                 </select>
                             </div>
+                            
                             <div class="mb-3">
-                                <label class="form-label">Fecha Programada</label>
+                                <label class="form-label"><strong>Fecha de Recorrido</strong></label>
                                 <input type="date" name="fecha_envio_programada" class="form-control" 
-                                       value="{{ venta.fecha_envio_programada|date:'Y-m-d' }}">
+                                       value="{% if venta.fecha_envio_programada %}{{ venta.fecha_envio_programada|date:'Y-m-d' }}{% endif %}"
+                                       required>
                             </div>
+                            
                             <div class="mb-3">
-                                <label class="form-label">Hora Programada</label>
+                                <label class="form-label"><strong>Hora Estimada</strong></label>
                                 <input type="time" name="hora_envio_programada" class="form-control" 
-                                       value="{{ venta.hora_envio_programada|time:'H:i' }}">
+                                       value="{% if venta.hora_envio_programada %}{{ venta.hora_envio_programada|time:'H:i' }}{% endif %}">
                             </div>
-                            <button type="submit" class="btn btn-info w-100">Guardar Asignación</button>
+                            
+                            {% if venta.estado == 'pendiente' %}
+                            <button type="submit" class="btn btn-success w-100 btn-lg">
+                                ✅ Asignar y Confirmar Venta
+                            </button>
+                            <small class="text-muted d-block mt-2 text-center">
+                                Al asignar chofer, la venta pasará a CONFIRMADA
+                            </small>
+                            {% else %}
+                            <button type="submit" class="btn btn-primary w-100">
+                                💾 Actualizar Asignación
+                            </button>
+                            {% endif %}
                         </form>
 
                         {% if venta.chofer %}
-                        <div class="alert alert-success mt-3 mb-0">
+                        <div class="alert alert-info mt-3 mb-0">
                             <small>
-                                <strong>Asignado:</strong><br>
-                                {{ venta.chofer.nombre_completo }}<br>
+                                <strong>✅ Asignado a:</strong><br>
+                                👤 {{ venta.chofer.nombre_completo }}<br>
                                 {% if venta.fecha_envio_programada %}
-                                📅 {{ venta.fecha_envio_programada }}<br>
+                                📅 {{ venta.fecha_envio_programada|date:"d/m/Y" }}<br>
                                 {% endif %}
                                 {% if venta.hora_envio_programada %}
-                                🕐 {{ venta.hora_envio_programada }}
+                                🕐 {{ venta.hora_envio_programada|time:"H:i" }}
                                 {% endif %}
                             </small>
                         </div>
                         {% endif %}
-                    </div>
-                </div>
-                {% endif %}
-
-                <!-- Info del Envío (si existe) -->
-                {% if venta.estado in 'enviada,entregada' and venta.envio %}
-                <div class="card shadow">
-                    <div class="card-header bg-success text-white">
-                        <h5 class="mb-0">📦 Envío</h5>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Chofer:</strong> {{ venta.envio.chofer.nombre_completo }}</p>
-                        <p><strong>Fecha:</strong> {{ venta.envio.fecha_envio }}</p>
-                        <p><strong>Hora:</strong> {{ venta.envio.hora_estimada }}</p>
-                        <p><strong>Estado:</strong> 
-                            <span class="badge bg-success">{{ venta.envio.get_estado_display }}</span>
-                        </p>
-                        <a href="{% url 'detalle_envio' venta.envio.id %}" class="btn btn-success w-100">
-                            Ver Detalle del Envío
-                        </a>
                     </div>
                 </div>
                 {% endif %}

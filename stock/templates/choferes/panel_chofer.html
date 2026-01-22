@@ -1,0 +1,120 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel Chofer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <style>
+        body {
+            background-color: #f5f5f5;
+        }
+        .envio-card {
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        .btn-lg {
+            padding: 14px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+<div class="container py-3">
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h5 class="mb-0">🚚 {{ chofer.nombre_completo }}</h5>
+            <small class="text-muted">
+                {{ pendientes.count|add:en_camino.count|add:ventas_enviadas_sin_envio.count }} entregas activas
+                {% if entregados_hoy %}
+                    • ✅ {{ entregados_hoy }} entregadas hoy
+                {% endif %}
+            </small>
+        </div>
+        <a href="{% url 'chofer_cerrar_sesion' %}" class="btn btn-outline-danger btn-sm">
+            Salir
+        </a>
+    </div>
+
+    <!-- 🆕 VENTAS ENVIADAS SIN OBJETO ENVIO -->
+    {% for venta in ventas_enviadas_sin_envio %}
+    <div class="card envio-card mb-3 border-info">
+        <div class="card-body">
+            <h6 class="mb-1">📦 {{ venta.cliente.nombre_completo }}</h6>
+            <p class="mb-1 small text-muted">
+                {{ venta.cliente.direccion|default:"Sin dirección" }}
+            </p>
+            <p class="mb-2 small">
+                📅 {{ venta.fecha_envio|default:"Sin fecha" }} 
+                {% if venta.hora_envio_programada %}
+                    • 🕐 {{ venta.hora_envio_programada }}
+                {% endif %}
+            </p>
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="badge bg-info text-dark">Enviada - Sin envío creado</span>
+                <button class="btn btn-primary btn-sm" 
+                        onclick="location.href='{% url 'chofer_detalle_venta_confirmada' venta.id %}'">
+                    📝 Ver Detalle
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- ENVÍOS PENDIENTES -->
+    {% for envio in pendientes %}
+    <div class="card envio-card mb-3 border-danger">
+        <div class="card-body">
+            <h6 class="mb-1">📍 {{ envio.venta.cliente.nombre_completo }}</h6>
+            <p class="mb-1 small text-muted">
+                {{ envio.direccion_entrega }}
+            </p>
+            <p class="mb-2 small">
+                🕐 {{ envio.fecha_envio }} {{ envio.hora_estimada }}
+            </p>
+            <button class="btn btn-warning btn-lg w-100"
+                    onclick="location.href='{% url 'chofer_detalle_envio' envio.id %}'">
+                🚚 Marcar En Camino
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- ENVÍOS EN CAMINO -->
+    {% for envio in en_camino %}
+    <div class="card envio-card mb-3 border-warning">
+        <div class="card-body">
+            <h6 class="mb-1">📍 {{ envio.venta.cliente.nombre_completo }}</h6>
+            <p class="mb-1 small text-muted">
+                {{ envio.direccion_entrega }}
+            </p>
+            <p class="mb-2 small">
+                🚚 En camino desde {{ envio.hora_salida|default:"--:--" }}
+            </p>
+            <button class="btn btn-success btn-lg w-100"
+                    onclick="location.href='{% url 'chofer_detalle_envio' envio.id %}'">
+                ✅ Marcar Entregado
+            </button>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- MENSAJE SI NO HAY ENTREGAS -->
+    {% if not pendientes and not en_camino and not ventas_enviadas_sin_envio %}
+    <div class="text-center mt-5">
+        <p class="text-muted mb-2">✅ No tenés entregas pendientes</p>
+        {% if entregados_hoy %}
+        <p class="text-success">
+            🎉 Completaste {{ entregados_hoy }} entrega{{ entregados_hoy|pluralize }} hoy
+        </p>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

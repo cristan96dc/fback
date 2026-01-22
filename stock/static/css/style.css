@@ -368,8 +368,9 @@ img {
     box-shadow: var(--shadow-sm);
     transition: var(--transition-base);
     overflow: hidden;
+    /* AGREGA ESTA LÍNEA ABAJO */
+    padding: var(--space-lg) !important; 
 }
-
 .card:hover {
     box-shadow: var(--shadow-md);
     border-color: var(--primary-light);
@@ -433,15 +434,18 @@ img {
 select[class*="form"],
 input[class*="form"] {
     width: 100%;
-    padding: 0.75rem 1rem;
+    /* Aumentamos el espacio a los lados (1.5rem) para que el texto respire */
+    padding: 0.85rem 1.5rem; 
     font-size: 1rem;
     line-height: 1.5;
     color: var(--text-main);
     background-color: var(--bg-card);
     border: 2px solid var(--border-color);
-    border-radius: var(--radius-md);
+    /* Bordes un poco más redondeados para que se vea más suave */
+    border-radius: 0.75rem; 
     transition: var(--transition-fast);
-    min-height: 44px;
+    /* Aumentamos la altura para que no se vea "apretado" arriba y abajo */
+    min-height: 52px; 
     appearance: none;
 }
 
@@ -464,7 +468,8 @@ input[class*="form"]:focus {
 label {
     display: block;
     font-weight: 600;
-    margin-bottom: var(--space-xs);
+    /* Aumenta este margen inferior */
+    margin-bottom: 0.8rem !important; 
     color: var(--text-main);
     font-size: 0.95rem;
 }
